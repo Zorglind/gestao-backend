@@ -10,7 +10,7 @@ app.use(helmet());
 app.use(express.json({ limit: '1mb' }));
 
 // CORS robusto (origens configuráveis via env)
-const origins = (process.env.CORS_ORIGINS || '').split(',').map(s=>s.trim()).filter(Boolean);
+const origins = (process.env.CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
 app.use(cors({
   origin: (origin, cb) => {
     if (!origin || origins.length === 0 || origins.includes(origin)) return cb(null, true);
@@ -30,19 +30,28 @@ const professionalsRoutes = require('./routes/professionalsRoutes');
 
 app.use('/auth', authRoutes);
 app.use('/data', dataRoutes);
+
+// 🔥 Aqui alinhamos o frontend (que chama /views) com o backend
 app.use('/reports', reportsRoutes);
+app.use('/views', reportsRoutes);
+
 app.use('/services', servicesRoutes);
 app.use('/professionals', professionalsRoutes);
 
-// Health
-app.get('/health', (req, res) => res.json({ ok: true, service: 'gestao-api', time: new Date().toISOString() }));
-app.get('/', (req, res) => res.json({ ok: true, name: 'Gestão & Dashboard API' }));
+// Health check
+app.get('/health', (req, res) =>
+  res.json({ ok: true, service: 'gestao-api', time: new Date().toISOString() })
+);
+
+app.get('/', (req, res) =>
+  res.json({ ok: true, name: 'Gestão & Dashboard API' })
+);
 
 // Error handler
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
-  res.status(500).json({ ok:false, error: err.message || 'internal error' });
+  res.status(500).json({ ok: false, error: err.message || 'internal error' });
 });
 
 module.exports = app;
