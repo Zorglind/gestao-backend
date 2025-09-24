@@ -1,1 +1,0 @@
-// Conexão com Supabase
